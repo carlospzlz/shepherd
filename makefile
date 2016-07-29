@@ -2,22 +2,29 @@ CC=g++
 INCLUDES=include
 SOURCE_DIR=src
 OBJECT_DIR=bin
-PROGRAM=squad.out
-OPENGL_LIBRARIES=/tools/SITE/lib/Linux64
-OPENGL_FLAGS=-lGL -lGLEW -lglut
+PROGRAM=flock.out
+LIBRARIES=/usr/lib64
+COMPILING_FLAGS=-g
+LINKING_FLAGS=-lGL -lGLEW -lglfw
 
 all: compile link
 
-agent:
-	$(CC) -I $(INCLUDES) -o $(OBJECT_DIR)/agent.o -c $(SOURCE_DIR)/agent.cpp
+vec2:
+	$(CC) $(COMPILING_FLAGS) -I $(INCLUDES) -o $(OBJECT_DIR)/vec2.o -c $(SOURCE_DIR)/vec2.cpp 
 
-group:
-	$(CC) -I $(INCLUDES) -o $(OBJECT_DIR)/group.o -c $(SOURCE_DIR)/group.cpp
+agent:
+	$(CC) $(COMPILING_FLAGS) -I $(INCLUDES) -o $(OBJECT_DIR)/agent.o -c $(SOURCE_DIR)/agent.cpp
+
+world:
+	$(CC) $(COMPILING_FLAGS) -I $(INCLUDES) -o $(OBJECT_DIR)/world.o -c $(SOURCE_DIR)/world.cpp
+
+renderer:
+	$(CC) $(COMPILING_FLAGS) -I $(INCLUDES) -o $(OBJECT_DIR)/renderer.o -c $(SOURCE_DIR)/renderer.cpp
 
 main: 
-	$(CC) -I $(INCLUDES) -o $(OBJECT_DIR)/main.o -c $(SOURCE_DIR)/main.cpp
+	$(CC) $(COMPILING_FLAGS) -I $(INCLUDES) -o $(OBJECT_DIR)/main.o -c $(SOURCE_DIR)/main.cpp
 
-compile: agent group main
+compile: vec2 agent world renderer main
 
 link:
-	$(CC) -L $(OPENGL_LIBRARIES) -o $(PROGRAM) $(OBJECT_DIR)/agent.o $(OBJECT_DIR)/group.o $(OBJECT_DIR)/main.o $(OPENGL_FLAGS)
+	$(CC) -L $(LIBRARIES) -o $(PROGRAM) $(OBJECT_DIR)/vec2.o $(OBJECT_DIR)/agent.o $(OBJECT_DIR)/world.o $(OBJECT_DIR)/renderer.o $(OBJECT_DIR)/main.o $(LINKING_FLAGS)
