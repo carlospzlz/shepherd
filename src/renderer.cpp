@@ -3,9 +3,10 @@
 
 const char* Renderer::s_vertex_shader =
 	"#version 400\n"
-	"in vec3 vp;\n"
+	"in vec3 position;\n"
+	"uniform mat4 transformation;\n"
 	"void main () {\n"
-	"	gl_Position = vec4(vp, 1.0);\n"
+	"	gl_Position = transformation * vec4(position, 1.0);\n"
 	"}";
 
 
@@ -23,7 +24,7 @@ bool Renderer::initialiseGraphicContext() {
 		return false;
 	}
 
-	m_window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	m_window = glfwCreateWindow(1280, 960, "Hello World", NULL, NULL);
 	if (!m_window) {
 		std::cout << "ERROR: could not open window with GLF3" << std::endl;
 		glfwTerminate();
@@ -40,6 +41,8 @@ bool Renderer::initialiseGraphicContext() {
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	glMatrixMode(GL_MODELVIEW);
+
 	return true;
 }
 
@@ -47,7 +50,7 @@ bool Renderer::initialiseGraphicContext() {
 void Renderer::allocateResources() {
 	float points[] = {
 		-0.5f, -0.5f, 0.0f,
-		 0.0f,  0.5f, 0.0f,
+		 0.0f,  1.0f, 0.0f,
 		 0.5f, -0.5f, 0.0f
 	};
 
@@ -85,8 +88,28 @@ void Renderer::render(World world) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(m_shader_programme);
 	glBindVertexArray(m_vao);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	glfwPollEvents();
+
+	glm::mat4 transformation;
+	glm::mat4 scale_transformation = glm::scale(
+		transformation, glm::vec3(0.1f, 0.1f, 0.1f));
+
+	std::vector<Agent*> agents = world.allAgents();
+	std::vector<Agent*>::const_iterator end_agent = agents.end();
+	for (std::vector<Agent*>::const_iterator current_agent=agents.begin();
+			current_agent!=end_agent; ++current_agent) {
+		std::cout << "Rendering agent " << **current_agent << std::endl;
+		transformation = glm::rotate(
+			scale_transformation, glm::radians(60.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		transformation = glm::translate(
+			transformation, (*current_agent)->getPosition());
+		GLint uniform_transformation = glGetUniformLocation(
+				m_shader_programme, "transformation");
+		glUniformMatrix4fv(
+			uniform_transformation, 1, GL_FALSE, glm::value_ptr(transformation));
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+	}
+
+	//glfwPollEvents();
 	glfwSwapBuffers(m_window);
 }
 

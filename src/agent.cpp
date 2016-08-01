@@ -1,8 +1,16 @@
 #include <agent.h>
 
 
+std::ostream& operator<<(std::ostream& lhs, const Agent& rhs) {
+	lhs << &rhs << " [" << rhs.getType() << ", (" << rhs.getPosition().x
+		<< ", "	<< rhs.getPosition().y << ", " << rhs.getPosition().z << ")"
+		<< ", " << rhs.getNeighboursSize() << " ]";
+	return lhs;
+}
+
+
 float Agent::distanceTo(const Agent& agent) {
-	return (agent.getPosition() - m_position).magnitude();
+	return glm::distance(m_position, agent.getPosition());
 }
 
 
@@ -21,10 +29,10 @@ void Agent::calculateNeighbours(std::vector<Agent*> agents) {
 
 
 void Agent::applyFlockingRules() {
-	Vec2 centre_of_mass;
-	Vec2 cohesion;
-	Vec2 alignment;
-	Vec2 separation;
+	glm::vec3 centre_of_mass;
+	glm::vec3 cohesion;
+	glm::vec3 alignment;
+	glm::vec3 separation;
 	std::vector<Agent*>::const_iterator end_neighbour = m_neighbours.end();
 	for (std::vector<Agent*>::const_iterator current_neighbour=m_neighbours.begin();
 			current_neighbour!=end_neighbour; ++current_neighbour) {
@@ -36,16 +44,21 @@ void Agent::applyFlockingRules() {
 	cohesion = centre_of_mass - m_position;
 	alignment /= m_neighbours.size();
 
-	cohesion.normalize(1);
-	alignment.normalize(1);
-	separation.normalize(1);
+	cohesion = glm::length(cohesion) ? glm::normalize(cohesion) : cohesion;
+	alignment = glm::length(alignment) ? glm::normalize(alignment) : alignment;
+	separation = glm::length(separation) ? glm::normalize(separation) : separation;
 
-	m_velocity += cohesion + alignment + separation;
+	m_velocity += COHESION_FACTOR*cohesion
+		+ ALIGNMENT_FACTOR*alignment
+		+ SEPARATION_FACTOR*separation;
 }
 
 
 void Agent::update() {
 	applyFlockingRules();
-	m_velocity.normalize(MAX_SPEED);
+	if (glm::length(m_velocity)) {
+		m_velocity = glm::normalize(m_velocity) *
+			std::min(glm::length(m_velocity), MAX_SPEED);
+	}
 	m_position += m_velocity;
 }

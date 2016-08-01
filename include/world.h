@@ -2,16 +2,15 @@
 #include <agent.h>
 
 
-enum AgentType {SHEEP, WOLF, SHEPHERD};
-
-
 class World {
 	private:
 		std::vector<Agent*> m_agents;
 		std::vector<Agent*> m_sheep;
 
 	public:
-		void createShepherdDog(Vec2 position) {};
-		void createSheepHerd(Vec2 position, int number);
-		void createWolvesPack(Vec2 position, int number);
+		void createShepherdDog(glm::vec3 position) {};
+		void createSheepHerd(glm::vec3 position, int number);
+		void createWolvesPack(glm::vec3 position, int number);
+		std::vector<Agent*> allAgents() { return m_agents; }
+		void update();
 };
