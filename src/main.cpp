@@ -25,12 +25,12 @@ int run() {
 	}
 	my_renderer.allocateResources();
 	World w;
-	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 40);
+	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 50);
 	std::vector<Agent*> agents = w.allAgents();
 	while (!my_renderer.windowShouldClose()) {
 		w.update();
 		my_renderer.render(w);
-		printWorld(w);
+		//printWorld(w);
 		//std::cin.ignore();
 	}
 	my_renderer.terminateGraphicContext();
@@ -42,12 +42,12 @@ int test() {
 	Agent a = Agent(SHEEP, glm::vec3(0.0f, 0.0f, 0.0f));
 	std::cout << a << std::endl;
 	World w;
-	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 5);
+	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 50);
 
 	signal(SIGINT, sigintHandler);
 	while (true) {
 		w.update();
-		printWorld(w);
+		//printWorld(w);
 		std::cin.ignore();
 	}
 	return 0;

@@ -49,9 +49,9 @@ bool Renderer::initialiseGraphicContext() {
 
 void Renderer::allocateResources() {
 	float points[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.0f,  1.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f
+		-0.01f, -0.01f, 0.0f,
+		 0.0f,  0.02f, 0.0f,
+		 0.01f, -0.01f, 0.0f
 	};
 
 	GLuint vbo = 0;
@@ -89,19 +89,24 @@ void Renderer::render(World world) {
 	glUseProgram(m_shader_programme);
 	glBindVertexArray(m_vao);
 
+	float vector_angle;
 	glm::mat4 transformation;
-	glm::mat4 scale_transformation = glm::scale(
-		transformation, glm::vec3(0.1f, 0.1f, 0.1f));
 
 	std::vector<Agent*> agents = world.allAgents();
 	std::vector<Agent*>::const_iterator end_agent = agents.end();
 	for (std::vector<Agent*>::const_iterator current_agent=agents.begin();
 			current_agent!=end_agent; ++current_agent) {
-		std::cout << "Rendering agent " << **current_agent << std::endl;
-		transformation = glm::rotate(
-			scale_transformation, glm::radians(60.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		transformation = glm::mat4();
 		transformation = glm::translate(
 			transformation, (*current_agent)->getPosition());
+		vector_angle = glm::angle(
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::normalize((*current_agent)->getVelocity()));
+		if ((*current_agent)->getVelocity().x > 0) {
+			vector_angle = -vector_angle;
+		}
+		transformation = glm::rotate(
+			transformation, vector_angle, glm::vec3(0.0f, 0.0f, 1.0f));
 		GLint uniform_transformation = glGetUniformLocation(
 				m_shader_programme, "transformation");
 		glUniformMatrix4fv(

@@ -2,9 +2,10 @@
 
 
 std::ostream& operator<<(std::ostream& lhs, const Agent& rhs) {
-	lhs << &rhs << " [" << rhs.getType() << ", (" << rhs.getPosition().x
+	lhs << &rhs << " [" << rhs.getType() <<", (" << rhs.getPosition().x
 		<< ", "	<< rhs.getPosition().y << ", " << rhs.getPosition().z << ")"
-		<< ", " << rhs.getNeighboursSize() << " ]";
+		<< ", (" << rhs.getVelocity().x << ", "	<< rhs.getVelocity().y << ", "
+		<< rhs.getVelocity().z << ")" << ", " << rhs.getNeighboursSize() << "]";
 	return lhs;
 }
 
@@ -28,11 +29,30 @@ void Agent::calculateNeighbours(std::vector<Agent*> agents) {
 }
 
 
+glm::vec3 Agent::seek(glm::vec3 target) {
+	/**
+	 * Steer = desired - velocity
+	 */
+	if (glm::distance(m_position, target)==0) {
+		return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+	glm::vec3 desired, steer;
+	desired = target - m_position;
+	desired = glm::normalize(desired) * MAX_SPEED;
+	steer = desired - m_velocity;
+	return glm::normalize(steer) * MAX_SPEED;
+}
+
+
 void Agent::applyFlockingRules() {
+	if (getNeighboursSize() == 0) {
+		return;
+	}
 	glm::vec3 centre_of_mass;
 	glm::vec3 cohesion;
 	glm::vec3 alignment;
 	glm::vec3 separation;
+	glm::vec3 desired_velocity;
 	std::vector<Agent*>::const_iterator end_neighbour = m_neighbours.end();
 	for (std::vector<Agent*>::const_iterator current_neighbour=m_neighbours.begin();
 			current_neighbour!=end_neighbour; ++current_neighbour) {
@@ -41,12 +61,17 @@ void Agent::applyFlockingRules() {
 		separation += m_position - (*current_neighbour)->getPosition();
 	}
 	centre_of_mass /= m_neighbours.size();
-	cohesion = centre_of_mass - m_position;
+	cohesion = seek(centre_of_mass);
 	alignment /= m_neighbours.size();
+	//alignment = glm::normalize(alignment) * MAX_SPEED;
+	//alignment -= m_velocity;
+	//alignment = glm::normalize(alignment) * MAX_SPEED;
+	alignment = seek(m_position+alignment);
+	separation = seek(m_position+separation);
 
-	cohesion = glm::length(cohesion) ? glm::normalize(cohesion) : cohesion;
-	alignment = glm::length(alignment) ? glm::normalize(alignment) : alignment;
-	separation = glm::length(separation) ? glm::normalize(separation) : separation;
+	//cohesion = glm::length(cohesion) ? glm::normalize(cohesion) : cohesion;
+	//alignment = glm::length(alignment) ? glm::normalize(alignment) : alignment;
+	//separation = glm::length(separation) ? glm::normalize(separation) : separation;
 
 	m_velocity += COHESION_FACTOR*cohesion
 		+ ALIGNMENT_FACTOR*alignment
@@ -61,4 +86,9 @@ void Agent::update() {
 			std::min(glm::length(m_velocity), MAX_SPEED);
 	}
 	m_position += m_velocity;
+	m_position.x = m_position.x < -1 ? m_position.x+2 : m_position.x;
+	m_position.x = m_position.x >  1 ? m_position.x-2 : m_position.x;
+	m_position.y = m_position.y < -1 ? m_position.y+2 : m_position.y;
+	m_position.y = m_position.y >  1 ? m_position.y-2 : m_position.y;
+
 }

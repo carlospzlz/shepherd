@@ -3,16 +3,14 @@
 
 void World::createSheepHerd(glm::vec3 centre_of_mass, int number) {
 	Agent* sheep;
-	float x_displacement, y_displacement;
+	glm::vec3 initial_velocity;
 	srand(time(NULL));
 	for (unsigned int i=0; i<number; ++i) {
-		x_displacement = rand() / (float)RAND_MAX * VISION_RADIUS - VISION_RADIUS/2.0;
-		y_displacement = rand() / (float)RAND_MAX * VISION_RADIUS - VISION_RADIUS/2.0;
+		initial_velocity = glm::vec3(rand()-RAND_MAX/2.0, rand()-RAND_MAX/2.0, 0);
+		initial_velocity = glm::normalize(initial_velocity) *
+			std::min(glm::length(initial_velocity), MAX_SPEED);
 		sheep = new Agent(
-			SHEEP, glm::vec3(
-				centre_of_mass.x + x_displacement,
-				centre_of_mass.y + y_displacement,
-				0));
+			SHEEP, glm::vec3(0.0f, 0.0f, 0.0f), initial_velocity);
 		m_sheep.push_back(sheep);
 		m_agents.push_back(sheep);
 	}
