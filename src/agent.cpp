@@ -10,6 +10,79 @@ std::ostream& operator<<(std::ostream& lhs, const Agent& rhs) {
 }
 
 
+float Agent::s_vision_radius = 0.2;
+
+float Agent::s_max_speed = 1E-4;
+
+float Agent::s_cohesion_factor = 1E-3;
+
+float Agent::s_alignment_factor = 1E-3;
+
+float Agent::s_separation_factor = 1E-3;
+
+float Agent::s_repulsion_factor = 1E-2;
+
+
+void Agent::increaseVisionRadius() {
+	s_vision_radius += .1;
+	std::cout << "s_visio_radius = " << s_vision_radius << std::endl;
+}
+
+
+void Agent::decreaseVisionRadius() {
+	s_vision_radius -= .1;
+	std::cout << "s_vision_radius = " << s_vision_radius << std::endl;
+}
+
+
+void Agent::increaseSpeed() {
+	s_max_speed += 1E-5;
+	std::cout << "s_max_speed = " << s_max_speed << std::endl;
+}
+
+
+void Agent::decreaseSpeed() {
+	s_max_speed -= 1E-5;
+	std::cout << "s_max_speed = " << s_max_speed << std::endl;
+}
+
+
+void Agent::increaseCohesion() {
+	s_cohesion_factor += STEP;
+	std::cout << "s_cohesion_factor = " << s_cohesion_factor << std::endl;
+}
+
+
+void Agent::decreaseCohesion() {
+	s_cohesion_factor -= STEP;
+	std::cout << "s_cohesion_factor = " << s_cohesion_factor << std::endl;
+}
+
+
+void Agent::increaseAlignment() {
+	s_alignment_factor += STEP;
+	std::cout << "s_alignment_factor = " << s_alignment_factor << std::endl;
+}
+
+
+void Agent::decreaseAlignment() {
+	s_alignment_factor -= STEP;
+	std::cout << "s_alignment_factor = " << s_alignment_factor << std::endl;
+}
+
+
+void Agent::increaseSeparation() {
+	s_separation_factor += STEP;
+	std::cout << "s_separation_factor = " << s_separation_factor << std::endl;
+}
+
+
+void Agent::decreaseSeparation() {
+	s_separation_factor -= STEP;
+	std::cout << "s_separation_factor = " << s_separation_factor << std::endl;
+}
+
+
 float Agent::distanceTo(const Agent& agent) {
 	return glm::distance(m_position, agent.getPosition());
 }
@@ -38,9 +111,9 @@ glm::vec3 Agent::seek(glm::vec3 target) {
 	}
 	glm::vec3 desired, steer;
 	desired = target - m_position;
-	desired = glm::normalize(desired) * MAX_SPEED;
+	desired = glm::normalize(desired) * s_max_speed;
 	steer = desired - m_velocity;
-	return glm::normalize(steer) * MAX_SPEED;
+	return glm::normalize(steer) * s_max_speed;
 }
 
 
@@ -70,15 +143,15 @@ void Agent::applyFlockingRules() {
 	centre_of_mass /= m_neighbours.size();
 	cohesion = seek(centre_of_mass);
 	alignment /= m_neighbours.size();
-	alignment = glm::normalize(alignment) * MAX_SPEED;
+	alignment = glm::normalize(alignment) * s_max_speed;
 	if (non_overlapped_neighbours > 0) {
 		separation /= m_neighbours.size();
-		separation = glm::normalize(separation) * MAX_SPEED;
+		separation = glm::normalize(separation) * s_max_speed;
 	}
 
-	m_velocity += COHESION_FACTOR*cohesion
-		+ ALIGNMENT_FACTOR*alignment
-		+ SEPARATION_FACTOR*separation;
+	m_velocity += s_cohesion_factor*cohesion
+		+ s_alignment_factor*alignment
+		+ s_separation_factor*separation;
 }
 
 
@@ -86,7 +159,7 @@ void Agent::update() {
 	applyFlockingRules();
 	if (glm::length(m_velocity)) {
 		m_velocity = glm::normalize(m_velocity) *
-			std::min(glm::length(m_velocity), MAX_SPEED);
+			std::min(glm::length(m_velocity), s_max_speed);
 	}
 	m_position += m_velocity;
 	m_position.x = m_position.x < -1 ? m_position.x+2 : m_position.x;
@@ -94,4 +167,14 @@ void Agent::update() {
 	m_position.y = m_position.y < -1 ? m_position.y+2 : m_position.y;
 	m_position.y = m_position.y >  1 ? m_position.y-2 : m_position.y;
 
+}
+
+void Agent::repelFrom(float x, float y) {
+	glm::vec3 repulsion_point(x, y, 0.0f);
+	glm::vec3 repulsion;
+	float distance = glm::distance(m_position, repulsion_point);
+	if (distance > 0) {
+		repulsion = (m_position - glm::vec3(x, y, 0.0f)) / distance;
+	}
+	m_velocity += s_repulsion_factor * repulsion;
 }

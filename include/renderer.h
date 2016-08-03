@@ -16,7 +16,9 @@ class Renderer {
 		GLFWwindow* m_window;
 		GLuint m_shader_programme;
 		GLuint m_vao;
+
 	public:
+		GLFWwindow* getWindow() { return m_window; }
 		bool initialiseGraphicContext();
 		void allocateResources();
 		bool windowShouldClose();

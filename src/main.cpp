@@ -18,20 +18,68 @@ void printWorld(World w) {
 }
 
 
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	if (action == GLFW_PRESS) {
+		switch (key) {
+			case GLFW_KEY_R:
+				Agent::increaseVisionRadius();
+				break;
+			case GLFW_KEY_F:
+				Agent::decreaseVisionRadius();
+				break;
+			case GLFW_KEY_Y:
+				Agent::increaseSpeed();
+				break;
+			case GLFW_KEY_H:
+				Agent::decreaseSpeed();
+				break;
+			case GLFW_KEY_U:
+				Agent::increaseCohesion();
+				break;
+			case GLFW_KEY_J:
+				Agent::decreaseCohesion();
+				break;
+			case GLFW_KEY_I:
+				Agent::increaseAlignment();
+				break;
+			case GLFW_KEY_K:
+				Agent::decreaseAlignment();
+				break;
+			case GLFW_KEY_O:
+				Agent::increaseSeparation();
+				break;
+			case GLFW_KEY_L:
+				Agent::decreaseSeparation();
+				break;
+		}
+	}
+}
+
+
+void shepherdWorld(GLFWwindow* window, World world) {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	world.repelFrom(xpos, ypos);
+}
+
+
 int run() {
 	Renderer my_renderer;
 	if (!my_renderer.initialiseGraphicContext()) {
 		return 1;
 	}
 	my_renderer.allocateResources();
+	glfwSetKeyCallback(my_renderer.getWindow(), keyCallback);
 	World w;
 	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 50);
 	std::vector<Agent*> agents = w.allAgents();
 	while (!my_renderer.windowShouldClose()) {
+		shepherdWorld(my_renderer.getWindow(), w);
 		w.update();
 		my_renderer.render(w);
 		//printWorld(w);
 		//std::cin.ignore();
+		glfwPollEvents();
 	}
 	my_renderer.terminateGraphicContext();
 	return 0;

@@ -12,5 +12,6 @@ class World {
 		void createSheepHerd(glm::vec3 position, int number);
 		void createWolvesPack(glm::vec3 position, int number);
 		std::vector<Agent*> allAgents() { return m_agents; }
+		void repelFrom(float x, float y);
 		void update();
 };
