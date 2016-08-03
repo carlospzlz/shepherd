@@ -47,8 +47,8 @@ int test() {
 	signal(SIGINT, sigintHandler);
 	while (true) {
 		w.update();
-		//printWorld(w);
-		std::cin.ignore();
+		printWorld(w);
+		//std::cin.ignore();
 	}
 	return 0;
 }

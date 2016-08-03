@@ -48,6 +48,8 @@ void Agent::applyFlockingRules() {
 	if (getNeighboursSize() == 0) {
 		return;
 	}
+	int non_overlapped_neighbours = 0;
+	float distance;
 	glm::vec3 centre_of_mass;
 	glm::vec3 cohesion;
 	glm::vec3 alignment;
@@ -58,20 +60,21 @@ void Agent::applyFlockingRules() {
 			current_neighbour!=end_neighbour; ++current_neighbour) {
 		centre_of_mass += (*current_neighbour)->getPosition();
 		alignment += (*current_neighbour)->getVelocity();
-		separation += m_position - (*current_neighbour)->getPosition();
+		distance = glm::distance(m_position, (*current_neighbour)->getPosition());
+		if (distance>0) {
+			separation += (m_position - (*current_neighbour)->getPosition()) /
+				distance;
+			++non_overlapped_neighbours;
+		}
 	}
 	centre_of_mass /= m_neighbours.size();
 	cohesion = seek(centre_of_mass);
 	alignment /= m_neighbours.size();
-	//alignment = glm::normalize(alignment) * MAX_SPEED;
-	//alignment -= m_velocity;
-	//alignment = glm::normalize(alignment) * MAX_SPEED;
-	alignment = seek(m_position+alignment);
-	separation = seek(m_position+separation);
-
-	//cohesion = glm::length(cohesion) ? glm::normalize(cohesion) : cohesion;
-	//alignment = glm::length(alignment) ? glm::normalize(alignment) : alignment;
-	//separation = glm::length(separation) ? glm::normalize(separation) : separation;
+	alignment = glm::normalize(alignment) * MAX_SPEED;
+	if (non_overlapped_neighbours > 0) {
+		separation /= m_neighbours.size();
+		separation = glm::normalize(separation) * MAX_SPEED;
+	}
 
 	m_velocity += COHESION_FACTOR*cohesion
 		+ ALIGNMENT_FACTOR*alignment

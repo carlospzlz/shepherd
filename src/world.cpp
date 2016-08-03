@@ -6,7 +6,8 @@ void World::createSheepHerd(glm::vec3 centre_of_mass, int number) {
 	glm::vec3 initial_velocity;
 	srand(time(NULL));
 	for (unsigned int i=0; i<number; ++i) {
-		initial_velocity = glm::vec3(rand()-RAND_MAX/2.0, rand()-RAND_MAX/2.0, 0);
+		initial_velocity = glm::vec3(
+			rand()-RAND_MAX/2.0, rand()-RAND_MAX/2.0, 0);
 		initial_velocity = glm::normalize(initial_velocity) *
 			std::min(glm::length(initial_velocity), MAX_SPEED);
 		sheep = new Agent(

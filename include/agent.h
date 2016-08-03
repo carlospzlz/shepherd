@@ -5,9 +5,9 @@
 
 const float VISION_RADIUS = .2;
 const float MAX_SPEED = 1E-4;
-const float COHESION_FACTOR = 1.2E-3;
-const float ALIGNMENT_FACTOR = 1.2E-3;
-const float SEPARATION_FACTOR = 1.3E-3;
+const float COHESION_FACTOR = 6E-4;
+const float ALIGNMENT_FACTOR = 6E-4;
+const float SEPARATION_FACTOR = 7E-4;
 
 
 enum AgentType {SHEEP, WOLF, SHEPHERD};
