@@ -1,19 +1,16 @@
-#include <iostream>
-#include <glm/glm.hpp>
-#include <vector>
+#ifndef AGENT_H
+#define AGENT_H
+#include <cmath>
+#include "environment.h"
 
 
-const float STEP = 5E-5;
-const float VISION_RADIUS = .2;
-
-
-enum AgentType {SHEEP, WOLF, SHEPHERD};
+enum AgentType {PREY, PREDATOR, UNKNOWN};
 
 
 class Agent {
 	friend std::ostream& operator<<(std::ostream& lhs, const Agent& rhs);
 
-	private:
+	protected:
 		static float s_vision_radius;
 		static float s_max_speed;
 		static float s_cohesion_factor;
@@ -42,15 +39,19 @@ class Agent {
 		static void decreaseAlignment();
 		static void increaseSeparation();
 		static void decreaseSeparation();
+		static void increaseRepulsion();
+		static void decreaseRepulsion();
 		Agent(AgentType type, glm::vec3 position):
 			m_type(type), m_position(position) { }
 		Agent(AgentType type, glm::vec3 position, glm::vec3 velocity):
 			m_type(type), m_position(position), m_velocity(velocity) { }
-		int getType() const { return m_type; }
+		int getType() const { return UNKNOWN; }
 		glm::vec3 getPosition() const { return m_position; }
 		glm::vec3 getVelocity() const { return m_velocity; }
 		int getNeighboursSize() const { return m_neighbours.size(); }
 		void calculateNeighbours(std::vector<Agent*> agents);
-		void update();
 		void repelFrom(float x, float y);
+		virtual void observe(Environment env);
+		virtual void action(Environment env);
 };
+#endif

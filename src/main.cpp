@@ -51,6 +51,12 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 			case GLFW_KEY_L:
 				Agent::decreaseSeparation();
 				break;
+			case GLFW_KEY_E:
+				Agent::increaseRepulsion();
+				break;
+			case GLFW_KEY_D:
+				Agent::decreaseRepulsion();
+				break;
 		}
 	}
 }
@@ -59,7 +65,9 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 void shepherdWorld(GLFWwindow* window, World world) {
 	double xpos, ypos;
 	glfwGetCursorPos(window, &xpos, &ypos);
-	world.repelFrom(xpos, ypos);
+	xpos = (xpos / 1280.0) * 2.0 - 1.0;
+	ypos = (1.0 - ypos / 960.0) * 2.0 - 1.0;
+	//world.repelFrom(xpos, ypos);
 }
 
 
@@ -71,10 +79,10 @@ int run() {
 	my_renderer.allocateResources();
 	glfwSetKeyCallback(my_renderer.getWindow(), keyCallback);
 	World w;
-	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 50);
+	w.createAgents(PREY, glm::vec3(0.0f, 0.0f, 0.0f), 50);
 	std::vector<Agent*> agents = w.allAgents();
 	while (!my_renderer.windowShouldClose()) {
-		shepherdWorld(my_renderer.getWindow(), w);
+		//shepherdWorld(my_renderer.getWindow(), w);
 		w.update();
 		my_renderer.render(w);
 		//printWorld(w);
@@ -87,10 +95,10 @@ int run() {
 
 
 int test() {
-	Agent a = Agent(SHEEP, glm::vec3(0.0f, 0.0f, 0.0f));
+	Agent a = Agent(PREY, glm::vec3(0.0f, 0.0f, 0.0f));
 	std::cout << a << std::endl;
 	World w;
-	w.createSheepHerd(glm::vec3(0.0f, 0.0f, 0.0f), 50);
+	w.createAgents(PREY, glm::vec3(0.0f, 0.0f, 0.0f), 50);
 
 	signal(SIGINT, sigintHandler);
 	while (true) {

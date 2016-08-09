@@ -1,4 +1,9 @@
-#include <agent.h>
+#include "agent.h"
+
+
+const float STEP = 5E-5;
+
+const float VISION_RADIUS = .2;
 
 
 std::ostream& operator<<(std::ostream& lhs, const Agent& rhs) {
@@ -20,7 +25,7 @@ float Agent::s_alignment_factor = 1E-3;
 
 float Agent::s_separation_factor = 1E-3;
 
-float Agent::s_repulsion_factor = 1E-2;
+float Agent::s_repulsion_factor = 1E-4;
 
 
 void Agent::increaseVisionRadius() {
@@ -82,6 +87,16 @@ void Agent::decreaseSeparation() {
 	std::cout << "s_separation_factor = " << s_separation_factor << std::endl;
 }
 
+void Agent::increaseRepulsion() {
+	s_repulsion_factor += STEP;
+	std::cout << "s_repulsion_factor = " << s_repulsion_factor << std::endl;
+}
+
+
+void Agent::decreaseRepulsion() {
+	s_repulsion_factor -= STEP;
+	std::cout << "s_repulsion_factor = " << s_repulsion_factor << std::endl;
+}
 
 float Agent::distanceTo(const Agent& agent) {
 	return glm::distance(m_position, agent.getPosition());
@@ -102,6 +117,11 @@ void Agent::calculateNeighbours(std::vector<Agent*> agents) {
 }
 
 
+void Agent::observe(Environment env) {
+	calculateNeighbours(env.getAgents());
+}
+
+
 glm::vec3 Agent::seek(glm::vec3 target) {
 	/**
 	 * Steer = desired - velocity
@@ -113,12 +133,15 @@ glm::vec3 Agent::seek(glm::vec3 target) {
 	desired = target - m_position;
 	desired = glm::normalize(desired) * s_max_speed;
 	steer = desired - m_velocity;
-	return glm::normalize(steer) * s_max_speed;
+	if (glm::length(steer)) {
+		steer = glm::normalize(steer) * s_max_speed;
+	}
+	return steer;
 }
 
 
 void Agent::applyFlockingRules() {
-	if (getNeighboursSize() == 0) {
+	if (m_neighbours.size() == 0) {
 		return;
 	}
 	int non_overlapped_neighbours = 0;
@@ -142,20 +165,23 @@ void Agent::applyFlockingRules() {
 	}
 	centre_of_mass /= m_neighbours.size();
 	cohesion = seek(centre_of_mass);
-	alignment /= m_neighbours.size();
-	alignment = glm::normalize(alignment) * s_max_speed;
+	if (glm::length(alignment) > 0) {
+		alignment /= m_neighbours.size();
+		alignment = glm::normalize(alignment) * s_max_speed;
+	}
 	if (non_overlapped_neighbours > 0) {
 		separation /= m_neighbours.size();
 		separation = glm::normalize(separation) * s_max_speed;
 	}
 
+	// Arbitrary weight the velocities
 	m_velocity += s_cohesion_factor*cohesion
 		+ s_alignment_factor*alignment
 		+ s_separation_factor*separation;
 }
 
 
-void Agent::update() {
+void Agent::action(Environment env) {
 	applyFlockingRules();
 	if (glm::length(m_velocity)) {
 		m_velocity = glm::normalize(m_velocity) *
@@ -169,12 +195,14 @@ void Agent::update() {
 
 }
 
+
 void Agent::repelFrom(float x, float y) {
 	glm::vec3 repulsion_point(x, y, 0.0f);
 	glm::vec3 repulsion;
 	float distance = glm::distance(m_position, repulsion_point);
 	if (distance > 0) {
 		repulsion = (m_position - glm::vec3(x, y, 0.0f)) / distance;
+		repulsion = seek(m_position + repulsion);
 	}
 	m_velocity += s_repulsion_factor * repulsion;
 }

@@ -6,7 +6,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <world.h>
+#include "world.h"
 
 
 class Renderer {
