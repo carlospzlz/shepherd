@@ -24,7 +24,7 @@ bool Renderer::initialiseGraphicContext() {
 		return false;
 	}
 
-	m_window = glfwCreateWindow(1280, 960, "Hello World", NULL, NULL);
+	m_window = glfwCreateWindow(640, 480, "Shepherd", NULL, NULL);
 	if (!m_window) {
 		std::cout << "ERROR: could not open window with GLF3" << std::endl;
 		glfwTerminate();
@@ -49,9 +49,9 @@ bool Renderer::initialiseGraphicContext() {
 
 void Renderer::allocateResources() {
 	float points[] = {
-		-0.01f, -0.01f, 0.0f,
-		 0.0f,  0.02f, 0.0f,
-		 0.01f, -0.01f, 0.0f
+		-0.02f, -0.02f, 0.0f,
+		 0.0f,  0.04f, 0.0f,
+		 0.02f, -0.02f, 0.0f
 	};
 
 	GLuint vbo = 0;

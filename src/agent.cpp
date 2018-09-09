@@ -17,7 +17,7 @@ std::ostream& operator<<(std::ostream& lhs, const Agent& rhs) {
 
 float Agent::s_vision_radius = 0.2;
 
-float Agent::s_max_speed = 1E-4;
+float Agent::s_max_speed = 5E-3;
 
 float Agent::s_cohesion_factor = 1E-3;
 
