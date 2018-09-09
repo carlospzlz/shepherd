@@ -96,7 +96,7 @@ void Renderer::render(World world) {
 	std::vector<Agent*>::const_iterator end_agent = agents.end();
 	for (std::vector<Agent*>::const_iterator current_agent=agents.begin();
 			current_agent!=end_agent; ++current_agent) {
-		transformation = glm::mat4();
+		transformation = glm::mat4(1.0f);
 		transformation = glm::translate(
 			transformation, (*current_agent)->getPosition());
 		vector_angle = glm::angle(

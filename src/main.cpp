@@ -79,7 +79,7 @@ int run() {
 	my_renderer.allocateResources();
 	glfwSetKeyCallback(my_renderer.getWindow(), keyCallback);
 	World w;
-	w.createAgents(PREY, glm::vec3(0.0f, 0.0f, 0.0f), 50);
+	w.createAgents(PREY, glm::vec3(0.0f, 0.0f, 0.0f), 10);
 	std::vector<Agent*> agents = w.allAgents();
 	while (!my_renderer.windowShouldClose()) {
 		//shepherdWorld(my_renderer.getWindow(), w);
